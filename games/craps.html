@@ -21,31 +21,66 @@
             background: rgba(0, 0, 0, 0.5);
             border: 3px solid #ffd700;
             border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem;
+            padding: 1rem;
+            margin: 1rem;
             text-align: center;
-            max-width: 800px;
-            width: 90%;
+            max-width: 1200px;
+            width: 95%;
         }
 
         .dice-container {
             display: flex;
             justify-content: center;
-            gap: 2rem;
-            margin: 2rem 0;
+            gap: 1rem;
+            margin: 1rem 0;
         }
 
         .die {
-            width: 100px;
-            height: 100px;
+            width: 60px;
+            height: 60px;
             background: white;
             border: 2px solid #ffd700;
-            border-radius: 15px;
+            border-radius: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 3rem;
+            font-size: 2rem;
             color: black;
+        }
+
+        .betting-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+            width: 100%;
+        }
+
+        .bet-section {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #ffd700;
+            border-radius: 8px;
+            padding: 0.5rem;
+        }
+
+        .bet-section h3 {
+            margin: 0 0 0.5rem 0;
+            border-bottom: 1px solid #ffd700;
+            padding-bottom: 0.25rem;
+            font-size: 1rem;
+        }
+
+        .bet-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .bet-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
         }
 
         .controls {
@@ -59,10 +94,10 @@
             background: #003300;
             border: 2px solid #ffd700;
             border-radius: 5px;
-            padding: 0.5rem;
+            padding: 0.25rem;
             color: #ffd700;
-            font-size: 1.2rem;
-            width: 150px;
+            font-size: 1rem;
+            width: 80px;
             text-align: center;
         }
 
@@ -70,11 +105,12 @@
             background: #8b0000;
             border: 2px solid #ffd700;
             border-radius: 8px;
-            padding: 1rem 2rem;
+            padding: 0.5rem 1rem;
             color: #ffd700;
-            font-size: 1.2rem;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: background-color 0.3s;
+            white-space: nowrap;
         }
 
         button:hover {
@@ -87,17 +123,45 @@
         }
 
         #message {
-            margin: 1rem 0;
-            font-size: 1.2rem;
-            min-height: 2em;
+            margin: 0.5rem 0;
+            font-size: 1rem;
+            min-height: 1.5em;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+
+        .seven-out {
+            background: #8b0000;
+            animation: flash 0.5s ease-in-out 3;
+        }
+
+        @keyframes flash {
+            0%, 100% { background: #8b0000; }
+            50% { background: #ff0000; }
         }
 
         .game-info {
             text-align: left;
-            margin: 2rem 0;
-            padding: 1rem;
+            margin: 1rem 0;
+            padding: 0.5rem;
             border: 1px solid #ffd700;
             border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .game-info h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+        }
+
+        .game-info p, .game-info ul {
+            margin: 0.25rem 0;
+        }
+
+        .game-info ul {
+            padding-left: 1.5rem;
         }
 
         @keyframes roll {
@@ -126,9 +190,103 @@
 
         <div id="message"></div>
 
+        <div class="betting-area">
+            <div class="bet-section">
+                <h3>Main Bets</h3>
+                <div class="bet-options">
+                    <div class="bet-row">
+                        <input type="number" id="passLineBet" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('passLine')">Pass Line</button>
+                    </div>
+                    <div class="bet-row">
+                        <input type="number" id="dontPassBet" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('dontPass')">Don't Pass</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bet-section">
+                <h3>Come Bets</h3>
+                <div class="bet-options">
+                    <div class="bet-row">
+                        <input type="number" id="comeBet" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('come')">Come</button>
+                    </div>
+                    <div class="bet-row">
+                        <input type="number" id="dontComeBet" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('dontCome')">Don't Come</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bet-section">
+                <h3>Place Bets</h3>
+                <div class="bet-options">
+                    <div class="bet-row">
+                        <input type="number" id="placeBet4" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('place', 4)">Place 4</button>
+                    </div>
+                    <div class="bet-row">
+                        <input type="number" id="placeBet5" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('place', 5)">Place 5</button>
+                    </div>
+                    <div class="bet-row">
+                        <input type="number" id="placeBet6" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('place', 6)">Place 6</button>
+                    </div>
+                    <div class="bet-row">
+                        <input type="number" id="placeBet8" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('place', 8)">Place 8</button>
+                    </div>
+                    <div class="bet-row">
+                        <input type="number" id="placeBet9" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('place', 9)">Place 9</button>
+                    </div>
+                    <div class="bet-row">
+                        <input type="number" id="placeBet10" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('place', 10)">Place 10</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bet-section">
+                <h3>Hardways</h3>
+                <div class="bet-options">
+                    <div class="bet-row">
+                        <input type="number" id="hardway4" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('hardways', 4)">Hard 4</button>
+                    </div>
+                    <div class="bet-row">
+                        <input type="number" id="hardway6" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('hardways', 6)">Hard 6</button>
+                    </div>
+                    <div class="bet-row">
+                        <input type="number" id="hardway8" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('hardways', 8)">Hard 8</button>
+                    </div>
+                    <div class="bet-row">
+                        <input type="number" id="hardway10" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('hardways', 10)">Hard 10</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bet-section">
+                <h3>Field Bet</h3>
+                <div class="bet-options">
+                    <div class="bet-row">
+                        <input type="number" id="fieldBet" placeholder="Amount" min="1" step="1">
+                        <button onclick="placeBet('field')">Field</button>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #ffd700; margin-top: 0.25rem;">
+                        Wins: 2,3,4,9,10,11,12<br>
+                        2x on 2 & 12
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="controls">
-            <input type="number" id="bet" placeholder="Enter bet" min="1" step="1">
-            <button onclick="placeBet()">Place Bet</button>
             <button onclick="roll()">Roll!</button>
         </div>
 
@@ -184,48 +342,67 @@
             pointDisplay.textContent = game.point || 'Not Set';
         }
 
-        function placeBet() {
-            const betAmount = parseInt(document.getElementById('bet').value);
+        function placeBet(type, number = null) {
+            const inputId = type === 'place' ? `placeBet${number}` :
+                          type === 'hardways' ? `hardway${number}` :
+                          `${type}Bet`;
+            
+            const betAmount = parseInt(document.getElementById(inputId).value);
             if (!betAmount || betAmount < 1) {
                 document.getElementById('message').textContent = 'Please enter a valid bet amount!';
                 return;
             }
 
-            const result = game.placeBet(betAmount);
+            const result = game.placeBet(type, betAmount, number);
             if (result.success) {
                 updateBalance(result.balance);
-                document.getElementById('message').textContent = 'Bet placed! Roll the dice!';
-                canRoll = true;
+                document.getElementById(inputId).value = '';
+                document.getElementById('message').textContent = `${type} bet placed!`;
+                updateBetDisplay(result.bets);
             } else {
                 document.getElementById('message').textContent = result.message;
             }
         }
 
-        function roll() {
-            if (!canRoll) {
-                document.getElementById('message').textContent = 'Place a bet first!';
-                return;
-            }
+        function updateBetDisplay(bets) {
+            let display = 'Active Bets: ';
+            if (bets.passLine) display += `Pass Line $${bets.passLine} `;
+            if (bets.dontPass) display += `Don't Pass $${bets.dontPass} `;
+            if (bets.come) display += `Come $${bets.come} `;
+            if (bets.dontCome) display += `Don't Come $${bets.dontCome} `;
+            if (bets.field) display += `Field $${bets.field} `;
+            
+            Object.entries(bets.place).forEach(([num, amount]) => {
+                if (amount) display += `Place ${num} $${amount} `;
+            });
+            
+            Object.entries(bets.hardways).forEach(([num, amount]) => {
+                if (amount) display += `Hard ${num} $${amount} `;
+            });
+            
+            document.getElementById('message').textContent = display;
+        }
 
+        function roll() {
             const result = game.play();
             updateDice(result.dice);
             updatePoint();
             
-            let message = `You rolled ${result.sum}. `;
-            if (result.status === 'win') {
-                message += `You win $${result.winnings}!`;
-                canRoll = false;
-            } else if (result.status === 'lose') {
-                message += 'You lose!';
-                canRoll = false;
-            } else if (result.status === 'point') {
-                message += `Point is ${result.point}`;
-            } else {
-                message += 'Roll again!';
+            // Display messages
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = result.messages.join(' ');
+            messageEl.classList.remove('seven-out');
+            
+            if (sum === 7 && game.point) {
+                messageEl.classList.add('seven-out');
             }
             
-            document.getElementById('message').textContent = message;
+            if (result.winnings > 0) {
+                messageEl.textContent += ` Total win: $${result.winnings}!`;
+            }
+            
             updateBalance(result.balance);
+            updateBetDisplay(result.bets);
         }
 
         // Initialize when page loads
