@@ -1,28 +1,27 @@
 class CrapsGame {
     constructor() {
-        this.playerMoney = 1000;
+        this.playerMoney = getBalance();
         this.point = null;
-        this.currentBet = 0;
+        this.bets = [];
+        this.diceValues = [1, 1];
     }
 
-    rollDice() {
-        return {
-            die1: Math.floor(Math.random() * 6) + 1,
-            die2: Math.floor(Math.random() * 6) + 1
-        };
+    rollDie() {
+        return Math.floor(Math.random() * 6) + 1;
     }
 
     placeBet(amount) {
-        if (amount > this.playerMoney) {
+        const validation = validateBet(amount, this.playerMoney);
+        if (!validation.valid) {
             return {
                 success: false,
-                message: "Not enough money for that bet!"
+                message: validation.message
             };
         }
 
-        this.playerMoney -= amount;
         this.currentBet = amount;
-        
+        this.playerMoney -= amount;
+
         return {
             success: true,
             balance: this.playerMoney
@@ -30,44 +29,58 @@ class CrapsGame {
     }
 
     play() {
-        const roll = this.rollDice();
-        const sum = roll.die1 + roll.die2;
-        let gameStatus = '';
-        let winnings = 0;
+        if (!this.currentBet) {
+            return {
+                success: false,
+                message: 'Please place a bet first!'
+            };
+        }
 
-        if (this.point === null) {
+        // Roll the dice
+        const die1 = this.rollDie();
+        const die2 = this.rollDie();
+        const sum = die1 + die2;
+
+        let status, winnings = 0;
+
+        if (!this.point) {
             // Come out roll
             if (sum === 7 || sum === 11) {
+                status = 'win';
                 winnings = this.currentBet * 2;
-                gameStatus = 'win';
+                this.playerMoney += winnings;
+                this.currentBet = 0;
             } else if (sum === 2 || sum === 3 || sum === 12) {
-                gameStatus = 'lose';
+                status = 'lose';
+                this.currentBet = 0;
             } else {
+                status = 'point';
                 this.point = sum;
-                gameStatus = 'point';
             }
         } else {
             // Point is established
             if (sum === this.point) {
+                status = 'win';
                 winnings = this.currentBet * 2;
-                gameStatus = 'win';
+                this.playerMoney += winnings;
                 this.point = null;
+                this.currentBet = 0;
             } else if (sum === 7) {
-                gameStatus = 'lose';
+                status = 'lose';
                 this.point = null;
+                this.currentBet = 0;
             } else {
-                gameStatus = 'continue';
+                status = 'continue';
             }
         }
 
-        this.playerMoney += winnings;
-        
         return {
-            dice: roll,
-            sum: sum,
+            success: true,
+            dice: { die1, die2 },
+            sum,
             point: this.point,
-            status: gameStatus,
-            winnings: winnings,
+            status,
+            winnings,
             balance: this.playerMoney
         };
     }

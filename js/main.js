@@ -1,50 +1,59 @@
-// Game instances
-let blackjackGame = null;
-let slotMachine = null;
-let rouletteGame = null;
-let crapsGame = null;
+// Shared functionality for all casino games
+function updateBalance(amount) {
+    document.getElementById('balance').textContent = `Balance: $${amount}`;
+}
 
-// Initialize games when pages load
-document.addEventListener('DOMContentLoaded', () => {
-    const currentPage = window.location.pathname;
-    
-    if (currentPage.includes('blackjack.html')) {
-        initBlackjack();
-    } else if (currentPage.includes('slots.html')) {
-        initSlots();
-    } else if (currentPage.includes('roulette.html')) {
-        initRoulette();
-    } else if (currentPage.includes('craps.html')) {
-        initCraps();
+// Money management
+const INITIAL_MONEY = 1000;
+
+function getBalance() {
+    const balance = localStorage.getItem('casinoBalance');
+    if (balance === null) {
+        localStorage.setItem('casinoBalance', INITIAL_MONEY);
+        return INITIAL_MONEY;
     }
-});
+    return parseInt(balance);
+}
 
-function updateBalance(balance) {
+function setBalance(amount) {
+    localStorage.setItem('casinoBalance', amount);
+    updateBalanceDisplay(amount);
+}
+
+function updateBalanceDisplay(amount) {
     const balanceElement = document.getElementById('balance');
     if (balanceElement) {
-        balanceElement.textContent = `Balance: $${balance}`;
+        balanceElement.textContent = formatMoney(amount).replace('$', 'Balance: $');
     }
 }
 
-// Game initialization functions
-function initBlackjack() {
-    blackjackGame = new BlackjackGame();
-    // Add your blackjack UI initialization here
+// Betting validation
+function validateBet(bet, balance) {
+    if (!bet || isNaN(bet) || bet < 1) {
+        return {
+            valid: false,
+            message: 'Please enter a valid bet amount!'
+        };
+    }
+
+    if (bet > balance) {
+        return {
+            valid: false,
+            message: 'Not enough money for that bet!'
+        };
+    }
+
+    return {
+        valid: true
+    };
 }
 
-function initSlots() {
-    slotMachine = new SlotMachine();
-    // Add your slots UI initialization here
+// Money formatting
+function formatMoney(amount) {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(amount);
 }
-
-function initRoulette() {
-    rouletteGame = new RouletteGame();
-    // Add your roulette UI initialization here
-}
-
-function initCraps() {
-    crapsGame = new CrapsGame();
-    // Add your craps UI initialization here
-}
-
-// Add game-specific functions for UI interactions here

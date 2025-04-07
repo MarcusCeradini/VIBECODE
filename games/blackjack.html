@@ -28,12 +28,33 @@
             width: 90%;
         }
 
+        .table-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            margin: 1rem 0;
+            width: 100%;
+        }
+
+        .dealer-container,
+        .hand-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .hand {
+            justify-content: center;
+        }
+
         .hand {
             display: flex;
-            justify-content: center;
             gap: 1rem;
+            flex-wrap: wrap;
             margin: 1rem 0;
-            min-height: 150px;
+            justify-content: center;
         }
 
         .card {
@@ -110,11 +131,17 @@
         <h1>🃏 Blackjack 🃏</h1>
         <div id="balance">Balance: $1000</div>
         
-        <div class="hand-label">Dealer's Hand</div>
-        <div id="dealer-hand" class="hand"></div>
-        
-        <div class="hand-label">Your Hand</div>
-        <div id="player-hand" class="hand"></div>
+        <div class="table-layout">
+            <div class="dealer-container">
+                <div class="hand-label" id="dealer-value">Dealer's Hand</div>
+                <div id="dealer-hand" class="hand"></div>
+            </div>
+            
+            <div class="hand-container">
+                <div class="hand-label" id="player-value">Your Hand</div>
+                <div id="player-hand" class="hand"></div>
+            </div>
+        </div>
 
         <div id="message"></div>
 
@@ -146,24 +173,26 @@
             return cardDiv;
         }
 
-        function updateHands(playerHand, dealerHand, hideDealer = true) {
-            const playerDiv = document.getElementById('player-hand');
-            const dealerDiv = document.getElementById('dealer-hand');
-            
-            playerDiv.innerHTML = '';
-            dealerDiv.innerHTML = '';
-            
-            playerHand.forEach(card => playerDiv.appendChild(createCard(card)));
-            dealerHand.forEach((card, i) => {
-                if (i === 1 && hideDealer) {
-                    const hiddenCard = document.createElement('div');
-                    hiddenCard.className = 'card';
-                    hiddenCard.textContent = '?';
-                    dealerDiv.appendChild(hiddenCard);
-                } else {
-                    dealerDiv.appendChild(createCard(card));
-                }
+        function updateHands(result) {
+            // Update dealer's hand
+            document.getElementById('dealer-hand').innerHTML = '';
+            result.dealerCards.forEach(card => {
+                document.getElementById('dealer-hand').appendChild(createCard(card));
             });
+
+            // Update player's hand
+            document.getElementById('player-hand').innerHTML = '';
+            result.playerCards.forEach(card => {
+                document.getElementById('player-hand').appendChild(createCard(card));
+            });
+
+            // Update hand values
+            document.getElementById('player-value').textContent = `Your Hand: ${result.playerValue}`;
+            document.getElementById('dealer-value').textContent = result.dealerValue ? `Dealer Shows: ${result.dealerValue}` : 'Dealer\'s Hand';
+
+            // Highlight current hand
+            const playerContainer = document.getElementById('player-hand').parentElement;
+            playerContainer.style.border = result.currentHand === 'player' ? '2px solid gold' : 'none';
         }
 
         function placeBet() {
@@ -173,48 +202,46 @@
                 return;
             }
 
-            if (game.placeBet(betAmount)) {
-                currentBet = betAmount;
+            const result = game.placeBet(betAmount);
+            if (result.success) {
                 document.getElementById('bet-controls').style.display = 'none';
                 document.getElementById('game-controls').style.display = 'flex';
+                document.getElementById('message').textContent = '';
                 
-                const hands = game.startRound();
-                updateHands(hands.playerHand, hands.dealerHand);
-                updateBalance(game.playerMoney);
+                updateHands(result);
+                updateBalance(result.balance);
+            } else {
+                document.getElementById('message').textContent = result.message;
             }
         }
 
         function hit() {
             const result = game.hit();
-            updateHands(result.hand, game.dealerHand);
+            updateHands(result);
             
-            if (result.bust) {
-                endRound('Bust! You lose!');
+            if (result.status === 'bust') {
+                endRound(result.message);
+                updateBalance(result.balance);
             }
         }
 
         function stand() {
-            const dealerHand = game.dealerPlay();
-            updateHands(game.playerHand, dealerHand, false);
+            const result = game.stand();
+            updateHands(result);
             
-            const winner = game.determineWinner();
-            let message = '';
-            
-            if (winner === 'player') {
-                message = 'You win!';
-            } else if (winner === 'dealer') {
-                message = 'Dealer wins!';
+            if (result.status === 'playing') {
+                document.getElementById('message').textContent = result.message;
             } else {
-                message = 'Push!';
+                endRound(result.message);
+                updateBalance(result.balance);
             }
-            
-            endRound(message);
         }
 
         function endRound(message) {
             document.getElementById('message').textContent = message;
             document.getElementById('game-controls').style.display = 'none';
             document.getElementById('bet-controls').style.display = 'flex';
+            document.getElementById('split-hand-container').style.display = 'none';
             updateBalance(game.playerMoney);
         }
 

@@ -164,9 +164,13 @@
             const die1 = document.getElementById('die1');
             const die2 = document.getElementById('die2');
             
+            // Add rolling animation
             die1.classList.add('rolling');
             die2.classList.add('rolling');
+            die1.textContent = '?';
+            die2.textContent = '?';
             
+            // After animation, show the results
             setTimeout(() => {
                 die1.classList.remove('rolling');
                 die2.classList.remove('rolling');

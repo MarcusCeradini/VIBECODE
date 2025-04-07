@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspirational Quote Generator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: background-image 1s ease-in-out;
+        }
+
+        .container {
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+            max-width: 80%;
+            margin: 20px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+        }
+
+        button {
+            padding: 20px 40px;
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #f50057;
+            transform: scale(1.1);
+        }
+
+        button:active {
+            background-color: #d5003c;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="quote-container">
+        <p id="quote">Click below to get an inspirational message!</p>
+        <button onclick="generateInspirationalQuote()">Generate Quote</button>
+    </div>
+
+    <script>
+        // Inspirational words categories
+        const subjects = ["Life", "Love", "Dreams", "Courage", "Success", "Hope", "Power", "Strength", "Wisdom", "Truth", "Freedom"];
+        const verbs = ["transforms", "empowers", "illuminates", "guides", "defines", "unlocks", "inspires", "enlightens", "awakens", "fuels"];
+        const adjectives = ["limitless", "infinite", "boundless", "unshakable", "divine", "unstoppable", "extraordinary", "beautiful", "unseen", "radiant"];
+        const adverbs = ["unfailingly", "gracefully", "naturally", "boldly", "effortlessly", "unstoppably", "triumphantly", "fearlessly", "passionately", "silently"];
+
+        // Array of inspiring background images (links can be adjusted as per preference)
+        const backgroundImages = [
+            "https://source.unsplash.com/1600x900/?nature,clouds",
+            "https://source.unsplash.com/1600x900/?mountains,sky",
+            "https://source.unsplash.com/1600x900/?ocean,landscape",
+            "https://source.unsplash.com/1600x900/?sunset,beach",
+            "https://source.unsplash.com/1600x900/?forest,trees",
+            "https://source.unsplash.com/1600x900/?stars,space",
+        ];
+
+        // Function to generate a random inspirational quote
+        function generateInspirationalQuote() {
+            // Randomly choose words from the arrays
+            const randomSubject = subjects[Math.floor(Math.random() * subjects.length)];
+            const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
+            const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+            const randomAdverb = adverbs[Math.floor(Math.random() * adverbs.length)];
+
+            // Construct the quote
+            const quote = `${randomSubject} ${randomVerb} your ${randomAdjective} path, and lead you ${randomAdverb}.`;
+
+            // Update the quote on the page
+            document.getElementById("quote").textContent = quote;
+
+            // Change the background image
+            const randomBackground = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
+            document.body.style.backgroundImage = `url(${randomBackground})`;
+        }
+    </script>
+
+</body>
+</html>
