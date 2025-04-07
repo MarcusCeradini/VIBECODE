@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Craps - VIBEZZZZZZ Casino</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #004d00, #003300);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #ffd700;
+        }
+
+        .game-container {
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid #ffd700;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem;
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+        }
+
+        .dice-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .die {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border: 2px solid #ffd700;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            color: black;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        input {
+            background: #003300;
+            border: 2px solid #ffd700;
+            border-radius: 5px;
+            padding: 0.5rem;
+            color: #ffd700;
+            font-size: 1.2rem;
+            width: 150px;
+            text-align: center;
+        }
+
+        button {
+            background: #8b0000;
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            color: #ffd700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background: #a00000;
+        }
+
+        .back-button {
+            margin-top: 2rem;
+            text-decoration: none;
+        }
+
+        #message {
+            margin: 1rem 0;
+            font-size: 1.2rem;
+            min-height: 2em;
+        }
+
+        .game-info {
+            text-align: left;
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 1px solid #ffd700;
+            border-radius: 8px;
+        }
+
+        @keyframes roll {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .rolling {
+            animation: roll 0.5s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎲 Craps 🎲</h1>
+        <div id="balance">Balance: $1000</div>
+        
+        <div class="dice-container">
+            <div class="die" id="die1">?</div>
+            <div class="die" id="die2">?</div>
+        </div>
+
+        <div id="point-display" style="font-size: 1.5rem; margin: 1rem 0;">
+            Point: <span id="point">Not Set</span>
+        </div>
+
+        <div id="message"></div>
+
+        <div class="controls">
+            <input type="number" id="bet" placeholder="Enter bet" min="1" step="1">
+            <button onclick="placeBet()">Place Bet</button>
+            <button onclick="roll()">Roll!</button>
+        </div>
+
+        <div class="game-info">
+            <h3>How to Play:</h3>
+            <p>1. Place your bet</p>
+            <p>2. First roll (Come Out):</p>
+            <ul>
+                <li>7 or 11: You win!</li>
+                <li>2, 3, or 12: You lose!</li>
+                <li>Any other number becomes your Point</li>
+            </ul>
+            <p>3. If Point is set:</p>
+            <ul>
+                <li>Roll your Point again: You win!</li>
+                <li>Roll a 7: You lose!</li>
+                <li>Any other number: Keep rolling</li>
+            </ul>
+        </div>
+
+        <a href="../index.html" class="back-button">
+            <button>← Back to Casino</button>
+        </a>
+    </div>
+
+    <script src="../js/craps.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        let game;
+        let canRoll = false;
+
+        function updateDice(roll) {
+            const die1 = document.getElementById('die1');
+            const die2 = document.getElementById('die2');
+            
+            die1.classList.add('rolling');
+            die2.classList.add('rolling');
+            
+            setTimeout(() => {
+                die1.classList.remove('rolling');
+                die2.classList.remove('rolling');
+                die1.textContent = roll.die1;
+                die2.textContent = roll.die2;
+            }, 1000);
+        }
+
+        function updatePoint() {
+            const pointDisplay = document.getElementById('point');
+            pointDisplay.textContent = game.point || 'Not Set';
+        }
+
+        function placeBet() {
+            const betAmount = parseInt(document.getElementById('bet').value);
+            if (!betAmount || betAmount < 1) {
+                document.getElementById('message').textContent = 'Please enter a valid bet amount!';
+                return;
+            }
+
+            const result = game.placeBet(betAmount);
+            if (result.success) {
+                updateBalance(result.balance);
+                document.getElementById('message').textContent = 'Bet placed! Roll the dice!';
+                canRoll = true;
+            } else {
+                document.getElementById('message').textContent = result.message;
+            }
+        }
+
+        function roll() {
+            if (!canRoll) {
+                document.getElementById('message').textContent = 'Place a bet first!';
+                return;
+            }
+
+            const result = game.play();
+            updateDice(result.dice);
+            updatePoint();
+            
+            let message = `You rolled ${result.sum}. `;
+            if (result.status === 'win') {
+                message += `You win $${result.winnings}!`;
+                canRoll = false;
+            } else if (result.status === 'lose') {
+                message += 'You lose!';
+                canRoll = false;
+            } else if (result.status === 'point') {
+                message += `Point is ${result.point}`;
+            } else {
+                message += 'Roll again!';
+            }
+            
+            document.getElementById('message').textContent = message;
+            updateBalance(result.balance);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new CrapsGame();
+            updateBalance(game.playerMoney);
+        });
+    </script>
+</body>
+</html>

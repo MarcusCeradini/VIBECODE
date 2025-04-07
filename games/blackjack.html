@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack - VIBEZZZZZZ Casino</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #004d00, #003300);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #ffd700;
+        }
+
+        .game-container {
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid #ffd700;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem;
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+        }
+
+        .hand {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            min-height: 150px;
+        }
+
+        .card {
+            background: white;
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 1rem;
+            min-width: 60px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            color: black;
+        }
+
+        .card.red {
+            color: red;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        input {
+            background: #003300;
+            border: 2px solid #ffd700;
+            border-radius: 5px;
+            padding: 0.5rem;
+            color: #ffd700;
+            font-size: 1.2rem;
+            width: 150px;
+            text-align: center;
+        }
+
+        button {
+            background: #8b0000;
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            color: #ffd700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background: #a00000;
+        }
+
+        .back-button {
+            margin-top: 2rem;
+            text-decoration: none;
+        }
+
+        #message {
+            margin: 1rem 0;
+            font-size: 1.2rem;
+            min-height: 2em;
+        }
+
+        .hand-label {
+            font-size: 1.5rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🃏 Blackjack 🃏</h1>
+        <div id="balance">Balance: $1000</div>
+        
+        <div class="hand-label">Dealer's Hand</div>
+        <div id="dealer-hand" class="hand"></div>
+        
+        <div class="hand-label">Your Hand</div>
+        <div id="player-hand" class="hand"></div>
+
+        <div id="message"></div>
+
+        <div class="controls" id="bet-controls">
+            <input type="number" id="bet" placeholder="Enter bet" min="1" step="1">
+            <button onclick="placeBet()">Place Bet</button>
+        </div>
+
+        <div class="controls" id="game-controls" style="display: none;">
+            <button onclick="hit()">Hit</button>
+            <button onclick="stand()">Stand</button>
+        </div>
+
+        <a href="../index.html" class="back-button">
+            <button>← Back to Casino</button>
+        </a>
+    </div>
+
+    <script src="../js/blackjack.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        let game;
+        let currentBet = 0;
+
+        function createCard(card) {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = `card ${['♥', '♦'].includes(card.suit) ? 'red' : ''}`;
+            cardDiv.textContent = `${card.value}${card.suit}`;
+            return cardDiv;
+        }
+
+        function updateHands(playerHand, dealerHand, hideDealer = true) {
+            const playerDiv = document.getElementById('player-hand');
+            const dealerDiv = document.getElementById('dealer-hand');
+            
+            playerDiv.innerHTML = '';
+            dealerDiv.innerHTML = '';
+            
+            playerHand.forEach(card => playerDiv.appendChild(createCard(card)));
+            dealerHand.forEach((card, i) => {
+                if (i === 1 && hideDealer) {
+                    const hiddenCard = document.createElement('div');
+                    hiddenCard.className = 'card';
+                    hiddenCard.textContent = '?';
+                    dealerDiv.appendChild(hiddenCard);
+                } else {
+                    dealerDiv.appendChild(createCard(card));
+                }
+            });
+        }
+
+        function placeBet() {
+            const betAmount = parseInt(document.getElementById('bet').value);
+            if (!betAmount || betAmount < 1) {
+                document.getElementById('message').textContent = 'Please enter a valid bet amount!';
+                return;
+            }
+
+            if (game.placeBet(betAmount)) {
+                currentBet = betAmount;
+                document.getElementById('bet-controls').style.display = 'none';
+                document.getElementById('game-controls').style.display = 'flex';
+                
+                const hands = game.startRound();
+                updateHands(hands.playerHand, hands.dealerHand);
+                updateBalance(game.playerMoney);
+            }
+        }
+
+        function hit() {
+            const result = game.hit();
+            updateHands(result.hand, game.dealerHand);
+            
+            if (result.bust) {
+                endRound('Bust! You lose!');
+            }
+        }
+
+        function stand() {
+            const dealerHand = game.dealerPlay();
+            updateHands(game.playerHand, dealerHand, false);
+            
+            const winner = game.determineWinner();
+            let message = '';
+            
+            if (winner === 'player') {
+                message = 'You win!';
+            } else if (winner === 'dealer') {
+                message = 'Dealer wins!';
+            } else {
+                message = 'Push!';
+            }
+            
+            endRound(message);
+        }
+
+        function endRound(message) {
+            document.getElementById('message').textContent = message;
+            document.getElementById('game-controls').style.display = 'none';
+            document.getElementById('bet-controls').style.display = 'flex';
+            updateBalance(game.playerMoney);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new BlackjackGame();
+            updateBalance(game.playerMoney);
+        });
+    </script>
+</body>
+</html>

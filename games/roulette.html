@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roulette - VIBEZZZZZZ Casino</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #004d00, #003300);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #ffd700;
+        }
+
+        .game-container {
+            background: rgba(0, 0, 0, 0.5);
+            border: 3px solid #ffd700;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem;
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+        }
+
+        .roulette-wheel {
+            width: 300px;
+            height: 300px;
+            border: 3px solid #ffd700;
+            border-radius: 50%;
+            margin: 2rem auto;
+            position: relative;
+            background: #8b0000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+        }
+
+        .betting-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .bet-option {
+            background: #8b0000;
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            padding: 1rem;
+            color: #ffd700;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .bet-option:hover {
+            background: #a00000;
+        }
+
+        .bet-option.selected {
+            background: #600000;
+            transform: scale(0.95);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        input {
+            background: #003300;
+            border: 2px solid #ffd700;
+            border-radius: 5px;
+            padding: 0.5rem;
+            color: #ffd700;
+            font-size: 1.2rem;
+            width: 150px;
+            text-align: center;
+        }
+
+        button {
+            background: #8b0000;
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            color: #ffd700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background: #a00000;
+        }
+
+        .back-button {
+            margin-top: 2rem;
+            text-decoration: none;
+        }
+
+        #message {
+            margin: 1rem 0;
+            font-size: 1.2rem;
+            min-height: 2em;
+        }
+
+        .current-bets {
+            margin: 1rem 0;
+            text-align: left;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .spinning {
+            animation: spin 0.5s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎲 Roulette 🎲</h1>
+        <div id="balance">Balance: $1000</div>
+        
+        <div class="roulette-wheel" id="wheel">0</div>
+
+        <div id="message"></div>
+
+        <div class="betting-options">
+            <div class="bet-option" onclick="selectBetType('red')">Red</div>
+            <div class="bet-option" onclick="selectBetType('black')">Black</div>
+            <div class="bet-option" onclick="selectBetType('green')">Green (0)</div>
+            <div class="bet-option" onclick="selectBetType('even')">Even</div>
+            <div class="bet-option" onclick="selectBetType('odd')">Odd</div>
+            <div class="bet-option" onclick="selectBetType('1-18')">1-18</div>
+            <div class="bet-option" onclick="selectBetType('19-36')">19-36</div>
+            <div class="bet-option" onclick="selectBetType('number')">Single Number</div>
+        </div>
+
+        <div class="controls">
+            <input type="number" id="bet-amount" placeholder="Bet amount" min="1" step="1">
+            <input type="number" id="bet-number" placeholder="Number (0-36)" min="0" max="36" style="display: none;">
+            <button onclick="placeBet()">Place Bet</button>
+            <button onclick="spin()">Spin!</button>
+        </div>
+
+        <div class="current-bets" id="current-bets">
+            <h3>Current Bets:</h3>
+            <div id="bet-list"></div>
+        </div>
+
+        <a href="../index.html" class="back-button">
+            <button>← Back to Casino</button>
+        </a>
+    </div>
+
+    <script src="../js/roulette.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        let game;
+        let selectedBetType = null;
+
+        function selectBetType(type) {
+            selectedBetType = type;
+            document.querySelectorAll('.bet-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector(`.bet-option:nth-child(${getBetTypeIndex(type) + 1})`).classList.add('selected');
+            
+            const numberInput = document.getElementById('bet-number');
+            numberInput.style.display = type === 'number' ? 'inline' : 'none';
+        }
+
+        function getBetTypeIndex(type) {
+            const types = ['red', 'black', 'green', 'even', 'odd', '1-18', '19-36', 'number'];
+            return types.indexOf(type);
+        }
+
+        function placeBet() {
+            if (!selectedBetType) {
+                document.getElementById('message').textContent = 'Please select a bet type!';
+                return;
+            }
+
+            const amount = parseInt(document.getElementById('bet-amount').value);
+            if (!amount || amount < 1) {
+                document.getElementById('message').textContent = 'Please enter a valid bet amount!';
+                return;
+            }
+
+            let betValue = selectedBetType;
+            if (selectedBetType === 'number') {
+                const number = parseInt(document.getElementById('bet-number').value);
+                if (isNaN(number) || number < 0 || number > 36) {
+                    document.getElementById('message').textContent = 'Please enter a valid number (0-36)!';
+                    return;
+                }
+                betValue = number;
+            }
+
+            const result = game.placeBet(selectedBetType, amount, betValue);
+            if (result.success) {
+                updateBalance(result.balance);
+                updateBetList();
+                document.getElementById('message').textContent = 'Bet placed!';
+            } else {
+                document.getElementById('message').textContent = result.message;
+            }
+        }
+
+        function updateBetList() {
+            const list = document.getElementById('bet-list');
+            list.innerHTML = game.bets.map(bet => 
+                `<div>$${bet.amount} on ${bet.type}${bet.value !== bet.type ? ` (${bet.value})` : ''}</div>`
+            ).join('');
+        }
+
+        function spin() {
+            if (game.bets.length === 0) {
+                document.getElementById('message').textContent = 'Place at least one bet first!';
+                return;
+            }
+
+            const wheel = document.getElementById('wheel');
+            wheel.classList.add('spinning');
+            
+            setTimeout(() => {
+                wheel.classList.remove('spinning');
+                const result = game.spin();
+                
+                wheel.textContent = result.number;
+                wheel.style.backgroundColor = result.color;
+                
+                if (result.winnings > 0) {
+                    document.getElementById('message').textContent = `You won $${result.winnings}!`;
+                } else {
+                    document.getElementById('message').textContent = 'No win this time!';
+                }
+                
+                updateBalance(result.balance);
+                updateBetList();
+            }, 2000);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new RouletteGame();
+            updateBalance(game.playerMoney);
+        });
+    </script>
+</body>
+</html>

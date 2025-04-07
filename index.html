@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIBEZZZZZZ Casino</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #004d00, #003300);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #ffd700;
+            overflow-x: hidden;
+        }
+
+        .casino-entrance {
+            text-align: center;
+            padding: 3rem 1rem;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            margin-bottom: 3rem;
+        }
+
+        .casino-title {
+            font-size: 4rem;
+            margin: 0;
+            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700; }
+            to { text-shadow: 0 0 15px #ffd700, 0 0 30px #ffd700; }
+        }
+
+        .games-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            perspective: 1000px;
+        }
+
+        .game-card {
+            background: rgba(139, 0, 0, 0.9);
+            border: 3px solid #ffd700;
+            border-radius: 20px;
+            width: 300px;
+            height: 400px;
+            text-decoration: none;
+            color: #ffd700;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            overflow: hidden;
+        }
+
+        .game-card:hover {
+            transform: rotateY(10deg) translateZ(20px);
+            box-shadow: -20px 20px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-icon {
+            font-size: 6rem;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+        }
+
+        .game-title {
+            font-size: 2rem;
+            margin: 0;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-description {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+        }
+
+        .game-card:hover .game-description {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .play-button {
+            background: #ffd700;
+            color: #8b0000;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+        }
+
+        .game-card:hover .play-button {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .casino-title {
+                font-size: 3rem;
+            }
+
+            .game-card {
+                width: 280px;
+                height: 380px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="casino-entrance">
+        <h1 class="casino-title">🎰 VIBEZZZZZZ CASINO 🎰</h1>
+        <p>Step into luxury and excitement!</p>
+    </div>
+
+    <div class="games-container">
+        <a href="games/blackjack.html" class="game-card">
+            <div class="game-content">
+                <div class="game-icon">🃏</div>
+                <h2 class="game-title">Blackjack</h2>
+                <p class="game-description">Beat the dealer to 21! Double down and split pairs for bigger wins.</p>
+                <div class="play-button">PLAY NOW</div>
+            </div>
+        </a>
+
+        <a href="games/slots.html" class="game-card">
+            <div class="game-content">
+                <div class="game-icon">🎰</div>
+                <h2 class="game-title">Slots</h2>
+                <p class="game-description">Spin to win with exciting symbols and massive payouts!</p>
+                <div class="play-button">PLAY NOW</div>
+            </div>
+        </a>
+
+        <a href="games/roulette.html" class="game-card">
+            <div class="game-content">
+                <div class="game-icon">🎲</div>
+                <h2 class="game-title">Roulette</h2>
+                <p class="game-description">Place your bets! Red or black, odd or even, the choice is yours.</p>
+                <div class="play-button">PLAY NOW</div>
+            </div>
+        </a>
+
+        <a href="games/craps.html" class="game-card">
+            <div class="game-content">
+                <div class="game-icon">🎲</div>
+                <h2 class="game-title">Craps</h2>
+                <p class="game-description">Roll the dice and test your luck in this classic casino game!</p>
+                <div class="play-button">PLAY NOW</div>
+            </div>
+        </a>
+    </div>
+</body>
+</html>
